@@ -9,6 +9,12 @@ export default async function handler(
     try {
       const { authorization } = req.headers;
 
+      console.log(
+        authorization,
+        process.env.API_SECRET_KEY,
+        authorization === `Bearer ${process.env.API_SECRET_KEY}`
+      );
+
       if (authorization === `Bearer ${process.env.API_SECRET_KEY}`) {
         await juejinCheckIn();
 
