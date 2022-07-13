@@ -14,5 +14,5 @@ jobs:
       - name: Call our API route
         run: |
           curl --request POST \
-          --url 'https://yoursite.com/api/cron' \
+          --url 'https://cron-job.vercel.app/api/hello' \
           --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
