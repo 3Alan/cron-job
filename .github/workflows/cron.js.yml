@@ -5,9 +5,8 @@ name: cron job
 
 on:
   schedule:
-    - cron: '5 * * * *'
-  push:
-    branches: ['main']
+    # 每天早上9点触发（UTC时间1点）
+    - cron: '0 1 * * *'
 
 jobs:
   cron:
