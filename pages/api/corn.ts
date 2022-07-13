@@ -11,8 +11,11 @@ export default async function handler(
 
       console.log(
         authorization,
+        '------',
         process.env.API_SECRET_KEY,
-        authorization === `Bearer ${process.env.API_SECRET_KEY}`
+        '------',
+        authorization === `Bearer ${process.env.API_SECRET_KEY}`,
+        process.env
       );
 
       if (authorization === `Bearer ${process.env.API_SECRET_KEY}`) {
