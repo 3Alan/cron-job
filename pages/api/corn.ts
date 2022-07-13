@@ -14,8 +14,7 @@ export default async function handler(
         '------',
         process.env.API_SECRET_KEY,
         '------',
-        authorization === `Bearer ${process.env.API_SECRET_KEY}`,
-        process.env
+        authorization === `Bearer ${process.env.API_SECRET_KEY}`
       );
 
       if (authorization === `Bearer ${process.env.API_SECRET_KEY}`) {
