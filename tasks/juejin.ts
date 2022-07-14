@@ -4,6 +4,7 @@ export default async function juejinCheckIn() {
   const headers = {
     cookie: process.env.JUEJIN_COOKIE
   };
+  let result;
 
   const checkInStatus: AxiosResponse<{ err_no: number; data: boolean }> =
     await axios.get('https://api.juejin.cn/growth_api/v1/get_today_status', {
@@ -12,10 +13,13 @@ export default async function juejinCheckIn() {
       credentials: 'include'
     });
   const { data: statusData } = checkInStatus;
-  if (statusData.err_no !== 0) return console.warn('查询签到状态失败！');
+  if (statusData.err_no !== 0) {
+    result = '查询签到状态失败！';
+    return result;
+  }
   if (statusData.data) {
-    console.log('今天已经签到了！');
-    return;
+    result = '今天已经签到了！';
+    return result;
   }
 
   // 签到
@@ -32,8 +36,9 @@ export default async function juejinCheckIn() {
 
   const { data: checkInData } = checkIn;
   if (checkInData.err_no !== 0) {
-    return console.warn(`签到失败: ${checkInData.err_msg}`);
+    result = `签到失败: ${checkInData.err_msg}`;
+    return result;
   }
 
-  console.log(`签到成功！当前积分；${checkInData.data.sum_point}`);
+  return `签到成功！当前积分；${checkInData.data.sum_point}`;
 }
