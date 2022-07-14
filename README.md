@@ -12,10 +12,6 @@
 | EMAIL_TO | 接受邮件的 email |
 | EMAIL_USER | 邮箱服务的用户名 |
 | EMAIL_PASS | 邮箱服务的密码 |
-| JUEJIN_COOKIE | 掘金 cookie |
-
-## 功能
-- [x] 掘金签到抽奖
 
 ## 想法
 - [ ] 环境变量可视化配置
