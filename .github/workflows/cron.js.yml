@@ -5,8 +5,8 @@ name: cron job
 
 on:
   schedule:
-    # 每天早上9点触发（UTC时间1点）
-    - cron: '0 1 * * *'
+    # 约每天早上8点触发（UTC时间0点）
+    - cron: '0 0 * * *'
 
 jobs:
   cron:
