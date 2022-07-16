@@ -66,8 +66,9 @@ export default async function juejin() {
     return result;
   }
 
-  return (
-    `<div>签到成功！当前积分；${checkInData.data.sum_point}</div>✅` +
-    (await lottery())
-  );
+  result =
+    result +
+    `<div>签到成功！当前积分：${checkInData.data.sum_point}✅</div>` +
+    (await lottery());
+  return result;
 }
