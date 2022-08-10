@@ -1,28 +1,36 @@
+import { juejinDipLucky, juejinLucky } from './../constants/api';
 import {
   juejinCheckIn,
   juejinCheckInDays,
   juejinCheckInStatus,
   juejinLottery,
+  juejinLotteryHistory,
   juejinLotteryStatus,
   juejinPoint
 } from '../constants/api';
 
+let checkInInfo = '';
+let checkInResult = '';
+let lotteryResult = '';
+let dipLuckyResult = '';
+
 // 抽奖
 const lottery = async () => {
-  // 查询今日是否有免费抽奖机会
-  const lotteryStatus = await juejinLotteryStatus();
-  const { data: lotteryStatusData } = lotteryStatus;
+  try {
+    // 查询今日是否有免费抽奖机会
+    const { free_count } = await juejinLotteryStatus();
 
-  if (lotteryStatusData.err_no !== 0) return '<div>免费抽奖失败！❌</div>';
-  if (lotteryStatusData.data.free_count === 0)
-    return '<div>今日已经免费抽奖！✅</div>';
+    if (free_count === 0) {
+      lotteryResult = '今日已经免费抽奖！✅<br/>';
+      return;
+    }
 
-  // 免费抽奖
-  const lottery = await juejinLottery();
-  const { data: lotteryData } = lottery;
-
-  if (lotteryData.err_no !== 0) return '<div>免费抽奖失败！❌</div>';
-  return `<div>抽到了 ${lotteryData.data.lottery_name}🎉</div>`;
+    // 免费抽奖
+    const { lottery_name } = await juejinLottery();
+    lotteryResult = `抽到了 ${lottery_name}🎉<br/>`;
+  } catch (error) {
+    lotteryResult = `免费抽奖失败！❌ ${error}<br/>`;
+  }
 };
 
 const getCheckInInfo = async () => {
@@ -31,44 +39,59 @@ const getCheckInInfo = async () => {
       juejinCheckInDays(),
       juejinPoint()
     ]);
-    const { data: checkInDaysData } = checkInDays;
-    const { data: pointData } = point;
+    const { cont_count, sum_count } = checkInDays;
 
-    return `<div>连续签到天数：${checkInDaysData.data.cont_count}</div> <div>累计签到天数
-  : ${checkInDaysData.data.sum_count}</div> <div>矿石数💎:${pointData.data}</div>`;
+    checkInInfo = `
+    连续签到天数：${cont_count}<br/>
+    累计签到天数: ${sum_count}<br/>
+    矿石数💎:${point}<br/>
+    `;
   } catch (error) {
-    return `<div>查询签到信息失败！❌</div>`;
+    checkInInfo = `
+    查询签到信息失败！❌<br/>
+    `;
   }
 };
 
-export default async function juejin() {
-  let result = await getCheckInInfo();
+/**
+ * 沾喜气
+ */
+const dipLucky = async () => {
+  const { count, lotteries } = await juejinLotteryHistory();
+  let dipResult = '';
 
-  const checkInStatus = await juejinCheckInStatus();
-  const { data: statusData } = checkInStatus;
-  if (statusData.err_no !== 0) {
-    result = result + '<div>查询签到状态失败！❌</div>' + (await lottery());
-    return result;
+  if (count > 0) {
+    const firstUser = lotteries[0];
+    const { has_dip, dip_value } = await juejinDipLucky(firstUser.history_id);
+
+    if (has_dip) {
+      dipResult = '今天已经沾过喜气! ✅<br/>';
+    } else {
+      dipResult = `沾到喜气： ${dip_value}<br/>`;
+    }
   }
-  if (statusData.data) {
-    result = result + '<div>今天已经签到了！✅</div>' + (await lottery());
-    return result;
+
+  const { total_value } = await juejinLucky();
+  dipLuckyResult = `${dipResult} 当前喜气值✨ ${total_value}<br/>`;
+};
+
+const checkIn = async () => {
+  const checkInStatusData = await juejinCheckInStatus();
+  if (checkInStatusData) {
+    checkInResult = '今天已经签到了！✅<br/>';
+    return;
   }
 
   // 签到
-  const checkIn = await juejinCheckIn();
-  const { data: checkInData } = checkIn;
-  if (checkInData.err_no !== 0) {
-    result =
-      result +
-      `<div>签到失败: ${checkInData.err_msg}❌</div>` +
-      (await lottery());
-    return result;
-  }
+  const { sum_point } = await juejinCheckIn();
+  checkInResult = `签到成功！当前积分：${sum_point}✅<br/>`;
+};
 
-  result =
-    result +
-    `<div>签到成功！当前积分：${checkInData.data.sum_point}✅</div>` +
-    (await lottery());
-  return result;
+export default async function juejin() {
+  await getCheckInInfo();
+  await checkIn();
+  await lottery();
+  await dipLucky();
+
+  return `${checkInInfo} ${checkInResult} ${lotteryResult} ${dipLuckyResult}`;
 }

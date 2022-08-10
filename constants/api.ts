@@ -1,70 +1,78 @@
 import axios from 'axios';
 
-const juejinFetchConfig = {
+const juejinAxios = axios.create({
+  baseURL: 'https://api.juejin.cn/',
   headers: {
-    cookie: process.env.JUEJIN_COOKIE
+    cookie: process.env.JUEJIN_COOKIE || ''
+  }
+});
+
+juejinAxios.interceptors.response.use(
+  function (response) {
+    if (response.data.err_no) {
+      throw new Error(response.data.err_msg);
+    }
+    return response.data.data;
   },
-  credentials: 'include'
-};
+  function (error) {
+    return Promise.reject(error);
+  }
+);
 
 /**
  * 掘金当天是否签到
  */
 export const juejinCheckInStatus = () =>
-  axios.get(
-    'https://api.juejin.cn/growth_api/v1/get_today_status',
-    // @ts-ignore
-    juejinFetchConfig
-  );
+  juejinAxios.get('/growth_api/v1/get_today_status');
 
 /**
  * 掘金签到
  */
-export const juejinCheckIn = () =>
-  axios.post(
-    'https://api.juejin.cn/growth_api/v1/check_in',
-    null,
-    // @ts-ignore
-    juejinFetchConfig
-  );
+export const juejinCheckIn: any = () =>
+  juejinAxios.post('/growth_api/v1/check_in', null);
 
 /**
  * 掘金免费抽奖次数
  */
-export const juejinLotteryStatus = () =>
-  axios.get(
-    'https://api.juejin.cn/growth_api/v1/lottery_config/get',
-    // @ts-ignore
-    juejinFetchConfig
-  );
+export const juejinLotteryStatus: any = () =>
+  juejinAxios.get('/growth_api/v1/lottery_config/get');
 
 /**
  * 掘金免费抽奖接口
  */
-export const juejinLottery = () =>
-  axios.post(
-    'https://api.juejin.cn/growth_api/v1/lottery/draw',
-    null,
-    // @ts-ignore
-    juejinFetchConfig
-  );
+export const juejinLottery: any = () =>
+  juejinAxios.post('/growth_api/v1/lottery/draw', null);
 
 /**
  * 掘金签到天数信息
  */
-export const juejinCheckInDays = () =>
-  axios.get(
-    'https://api.juejin.cn/growth_api/v1/get_counts',
-    // @ts-ignore
-    juejinFetchConfig
-  );
+export const juejinCheckInDays: any = () =>
+  juejinAxios.get('/growth_api/v1/get_counts');
 
 /**
  * 掘金矿石数
  */
 export const juejinPoint = () =>
-  axios.get(
-    'https://api.juejin.cn/growth_api/v1/get_cur_point',
-    // @ts-ignore
-    juejinFetchConfig
-  );
+  juejinAxios.get('/growth_api/v1/get_cur_point');
+
+/**
+ * 掘金抽奖中奖人信息
+ */
+export const juejinLotteryHistory: any = () =>
+  juejinAxios.post('/growth_api/v1/lottery_history/global_big', null, {
+    params: { page_no: 1, page_size: 5 }
+  });
+
+/**
+ * 掘金沾喜气
+ */
+export const juejinDipLucky: any = (id: string) =>
+  juejinAxios.post('/growth_api/v1/lottery_lucky/dip_lucky', {
+    lottery_history_id: id
+  });
+
+/**
+ * 当前喜气值
+ */
+export const juejinLucky: any = () =>
+  juejinAxios.post('/growth_api/v1/lottery_lucky/my_lucky', null);
