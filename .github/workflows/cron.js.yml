@@ -21,9 +21,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: algolia-docsearch
+        env:
+		      APPLICATION_ID: ${{ secrets.ALGOLIA_APP_ID }}
+		      API_KEY: ${{ secrets.ALGOLIA_API_KEY }}
         run: |
           docker run \
-            --env ALGOLIA_APP_ID=${secrets.ALGOLIA_APP_ID} \
-            --env ALGOLIA_API_KEY=${secrets.ALGOLIA_API_KEY} \
+            -it \
+            --env APPLICATION_ID=${secrets.APPLICATION_ID} \
+            --env API_KEY=${secrets.API_KEY} \
             --env "CONFIG=$(cat docsearch.json | jq -r tostring)" \
             algolia/docsearch-scraper
