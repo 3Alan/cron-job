@@ -24,8 +24,8 @@ jobs:
 
       - name: Get the content of algolia.json as config
         id: algolia_config
-        run: echo "::set-output name=config::$(cat docsearch.json | jq -r tostring)"
-      
+        run: echo "::set-output name=config::$(cat configs/docsearch.json | jq -r tostring)"
+
       - name: docsearch
         env:
           ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
