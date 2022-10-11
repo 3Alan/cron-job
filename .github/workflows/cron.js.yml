@@ -21,9 +21,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: algolia-docsearch
-          env:
-            ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
-            ALGOLIA_API_KEY: ${{ secrets.ALGOLIA_API_KEY }}
+        env:
+          ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
+          ALGOLIA_API_KEY: ${{ secrets.ALGOLIA_API_KEY }}
         run: |
           docker run \
             -it \
