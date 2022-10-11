@@ -28,5 +28,5 @@ jobs:
           docker run \
             --env APPLICATION_ID=${ALGOLIA_APP_ID} \
             --env API_KEY=${ALGOLIA_API_KEY} \
-            --env "CONFIG=$(cat ./docsearch.json | jq -r tostring)" \
+            --env "CONFIG=$(cat docsearch.json | jq -r tostring)" \
             algolia/docsearch-scraper
