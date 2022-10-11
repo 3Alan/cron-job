@@ -9,11 +9,21 @@ on:
     - cron: '0 0 * * *'
 
 jobs:
-  cron:
+  # juejin:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Call our API route
+  #       run: |
+  #         curl --request POST \
+  #         --url 'https://cron-job.vercel.app/api/corn' \
+  #         --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+  algolia:
     runs-on: ubuntu-latest
     steps:
-      - name: Call our API route
+      - name: algolia-docsearch
         run: |
-          curl --request POST \
-          --url 'https://cron-job.vercel.app/api/corn' \
-          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+          docker run \
+            --env ALGOLIA_APP_ID=${secrets.ALGOLIA_APP_ID} \
+            --env ALGOLIA_API_KEY=${secrets.ALGOLIA_API_KEY} \
+            --env "CONFIG=$(cat docsearch.json | jq -r tostring)" \
+            algolia/docsearch-scraper
