@@ -4,9 +4,9 @@
 name: cron job
 
 on:
-  schedule:
-    # 约每天早上8点触发（UTC时间0点）
-    - cron: '0 0 * * *'
+  push:
+    branches:
+      - main
 
 jobs:
   # juejin:
