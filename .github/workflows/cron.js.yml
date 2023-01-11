@@ -15,6 +15,6 @@ jobs:
     steps:
       - name: 掘金签到
         run: |
-          curl --request POST \
+          curl --request GET \
           --url 'https://cron-job.vercel.app/api/juejin' \
           --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
