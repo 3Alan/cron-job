@@ -38,7 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const browser = await puppeteer.launch({
       executablePath,
-      headless: false,
+      // headless: false,
       slowMo: 250, // slow down by 250ms
       defaultViewport: { width: 1440, height: 1000 },
       args: chromium.args
