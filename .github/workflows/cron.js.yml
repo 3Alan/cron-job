@@ -19,6 +19,8 @@ jobs:
       EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
       EMAIL_USER: ${{ secrets.EMAIL_USER }}
     steps:
+      - name: 安装中文字体
+        run: sudo apt install -y --force-yes --no-install-recommends ttf-wqy-microhei
       - uses: actions/checkout@v2
       - name: 安装依赖
         run: yarn

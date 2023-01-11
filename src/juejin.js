@@ -17,10 +17,10 @@ function sleep(ms, isRandom = false) {
 export default async function handler() {
   try {
     const browser = await puppeteer.launch({
-      // env开启
+      // TODO: 根据环境变量dev开启
       // headless: false,
       slowMo: 250, // slow down by 250ms
-      defaultViewport: { width: 1440, height: 1000 }
+      defaultViewport: { width: 1280, height: 1200 }
     });
     const page = await browser.newPage();
     await page.setDefaultNavigationTimeout(0);
