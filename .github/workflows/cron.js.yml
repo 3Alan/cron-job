@@ -4,6 +4,7 @@
 name: cron job
 
 on:
+  workflow_dispatch:
   schedule:
     # 约每天早上8点触发（UTC时间0点）
     - cron: '0 0 * * *'
