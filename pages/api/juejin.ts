@@ -20,11 +20,11 @@ function sleep(ms: number, isRandom = false) {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { authorization } = req.headers;
-  if (authorization !== `Bearer ${process.env.API_SECRET_KEY}`) {
-    res.status(401).json({ success: false });
-    return;
-  }
-  res.status(200).json({ success: true, message: 'executing...' });
+  // if (authorization !== `Bearer ${process.env.API_SECRET_KEY}`) {
+  //   res.status(401).json({ success: false });
+  //   return;
+  // }
+  // res.status(200).json({ success: true, message: 'executing...' });
 
   try {
     const LOCAL_CHROME_EXECUTABLE =
@@ -91,6 +91,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await page.close();
     await browser.close();
+
+    res.status(200).json({ success: true, message: 'executing...' });
   } catch (err: any) {
     await sendEmail({
       from: process.env.EMAIL_FROM,
@@ -98,5 +100,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       subject: '定时任务通知 ✅',
       html: err.message
     });
+
+    res.status(500).json({ success: true, message: err.message });
   }
 }
