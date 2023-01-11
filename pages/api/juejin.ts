@@ -3,26 +3,35 @@ import { NextApiRequest, NextApiResponse } from 'next';
 // https://github.com/vercel/virtual-event-starter-kit/blob/main/lib/screenshot.ts
 import chromium from 'chrome-aws-lambda';
 import puppeteer from 'puppeteer-core';
+import sendEmail from '../../utils/sendEmail';
 
-function sleep(ms: number) {
+function randomRange(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function sleep(ms: number, isRandom = false) {
+  // 100ms上下浮动，防止被检测
+  const finalTime = isRandom ? ms + randomRange(-100, 100) : ms;
+
   return new Promise(resolve => {
-    setTimeout(resolve, ms);
+    setTimeout(resolve, finalTime);
   });
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { authorization } = req.headers;
-  // if (authorization !== `Bearer ${process.env.API_SECRET_KEY}`) {
-  //   res.status(401).json({ success: false });
-  //   return;
-  // }
+  if (authorization !== `Bearer ${process.env.API_SECRET_KEY}`) {
+    res.status(401).json({ success: false });
+    return;
+  }
+  res.status(200).json({ success: true, message: 'executing...' });
 
-const LOCAL_CHROME_EXECUTABLE =
-  process.platform === 'win32'
-    ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
-    : process.platform === 'linux'
-    ? '/usr/bin/google-chrome'
-    : '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+  const LOCAL_CHROME_EXECUTABLE =
+    process.platform === 'win32'
+      ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
+      : process.platform === 'linux'
+      ? '/usr/bin/google-chrome'
+      : '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
   const executablePath = (await chromium.executablePath) || LOCAL_CHROME_EXECUTABLE;
 
@@ -52,27 +61,33 @@ const LOCAL_CHROME_EXECUTABLE =
   await page.goto('https://juejin.cn/user/center/signin?from=main_page', {
     waitUntil: 'domcontentloaded'
   });
+  // 页面有动画
+  await sleep(1000);
 
-  await page.screenshot();
   const isComplete = (await (await page.$$('button[class="signin btn"]')).length) === 0;
+  if (!isComplete) {
+    // 签到操作
+    await page.click('button[class="signin btn"]');
+  }
+  const checkInImgBuffer = (await page.screenshot()) as Buffer;
 
   // 沾喜气
   await page.goto('https://juejin.cn/user/center/lottery?from=lucky_lottery_menu_bar', {
     waitUntil: 'domcontentloaded'
   });
-  await sleep(1000);
+  await sleep(1000, true);
   await page.click('svg[class="stick-btn"]');
+  const lotteryImgBuffer = (await page.screenshot()) as Buffer;
 
-  if (isComplete) {
-    page.evaluate(async () => {
-      //打印日志
-      console.log('isComplete');
-    });
-  } else {
-    // 签到操作
-    await page.click('button[class="signin btn"]');
-  }
+  await sendEmail({
+    from: process.env.EMAIL_FROM,
+    to: process.env.EMAIL_TO,
+    subject: '定时任务通知 ✅',
+    html: `<img src="data:image/png;base64,${checkInImgBuffer.toString(
+      'base64'
+    )}" /><img src="data:image/png;base64,${lotteryImgBuffer.toString('base64')}" />`
+  });
+
   await page.close();
   await browser.close();
-  res.status(200).json({ success: true, isComplete });
 }
