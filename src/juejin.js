@@ -1,15 +1,12 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-// vercel有50mb的限制 https://gist.github.com/kettanaito/56861aff96e6debc575d522dd03e5725
-// https://github.com/vercel/virtual-event-starter-kit/blob/main/lib/screenshot.ts
 import chromium from 'chrome-aws-lambda';
 import puppeteer from 'puppeteer-core';
-import sendEmail from '../../utils/sendEmail';
+import sendEmail from './utils/sendEmail.js';
 
-function randomRange(min: number, max: number) {
+function randomRange(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
-function sleep(ms: number, isRandom = false) {
+function sleep(ms, isRandom = false) {
   // 100ms上下浮动，防止被检测
   const finalTime = isRandom ? ms + randomRange(-100, 100) : ms;
 
@@ -18,14 +15,7 @@ function sleep(ms: number, isRandom = false) {
   });
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { authorization } = req.headers;
-  // if (authorization !== `Bearer ${process.env.API_SECRET_KEY}`) {
-  //   res.status(401).json({ success: false });
-  //   return;
-  // }
-  // res.status(200).json({ success: true, message: 'executing...' });
-
+export default async function handler() {
   try {
     const LOCAL_CHROME_EXECUTABLE =
       process.platform === 'win32'
@@ -35,23 +25,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         : '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
     const executablePath = (await chromium.executablePath) || LOCAL_CHROME_EXECUTABLE;
-    console.log(executablePath, 'executablePath');
 
     const browser = await puppeteer.launch({
       executablePath,
-      // headless: false,
+      headless: false,
       slowMo: 250, // slow down by 250ms
       defaultViewport: { width: 1440, height: 1000 },
       args: chromium.args
     });
-    console.log('launch');
     const page = await browser.newPage();
     await page.setDefaultNavigationTimeout(0);
-    console.log('setDefaultNavigationTimeout');
-    
+
     // page.on('console', msg => console.log('PAGE LOG:', JSON.stringify(msg)));
 
-    const cookieArgs = JSON.parse(process.env.JUEJIN_COOKIE_JSON || '[]').map((item: any) => ({
+    const cookieArgs = JSON.parse(process.env.JUEJIN_COOKIE_JSON || '[]').map(item => ({
       name: item.name,
       value: item.value,
       domain: item.domain,
@@ -62,8 +49,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       sameSite: item.sameSite
     }));
     await page.setCookie(...cookieArgs);
-
-    console.log('setCookie');
 
     await page.goto('https://juejin.cn/user/center/signin?from=main_page', {
       waitUntil: 'domcontentloaded'
@@ -76,7 +61,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // 签到操作
       await page.click('button[class="signin btn"]');
     }
-    const checkInImgBuffer = (await page.screenshot()) as Buffer;
+    const checkInImgBuffer = await page.screenshot();
 
     // 沾喜气
     await page.goto('https://juejin.cn/user/center/lottery?from=lucky_lottery_menu_bar', {
@@ -84,7 +69,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
     await sleep(1000, true);
     await page.click('svg[class="stick-btn"]');
-    const lotteryImgBuffer = (await page.screenshot()) as Buffer;
+    const lotteryImgBuffer = await page.screenshot();
 
     await sendEmail({
       from: process.env.EMAIL_FROM,
@@ -97,7 +82,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await page.close();
     await browser.close();
-  } catch (err: any) {
+  } catch (err) {
     await sendEmail({
       from: process.env.EMAIL_FROM,
       to: process.env.EMAIL_TO,

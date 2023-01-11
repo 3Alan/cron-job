@@ -12,9 +12,15 @@ on:
 jobs:
   cron:
     runs-on: ubuntu-latest
+    env:
+      JUEJIN_COOKIE_JSON: ${{ secrets.JUEJIN_COOKIE_JSON }}
+      EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+      EMAIL_TO: ${{ secrets.EMAIL_TO }}
+      EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+      EMAIL_USER: ${{ secrets.EMAIL_USER }}
     steps:
-      - name: 掘金签到
-        run: |
-          curl --request GET \
-          --url 'https://cron-job.vercel.app/api/juejin' \
-          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+      - uses: actions/checkout@v2
+      - name: 安装依赖
+        run: yarn
+      - name: 运行脚本
+        run: yarn start
