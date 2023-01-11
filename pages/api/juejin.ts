@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 // vercel有50mb的限制 https://gist.github.com/kettanaito/56861aff96e6debc575d522dd03e5725
+// https://github.com/vercel/virtual-event-starter-kit/blob/main/lib/screenshot.ts
 import chromium from 'chrome-aws-lambda';
 import puppeteer from 'puppeteer-core';
 
@@ -28,10 +29,9 @@ const LOCAL_CHROME_EXECUTABLE =
   const browser = await puppeteer.launch({
     executablePath,
     headless: false,
-    devtools: true,
     slowMo: 250, // slow down by 250ms
     defaultViewport: { width: 1440, height: 1000 },
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: chromium.args
   });
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(0);
