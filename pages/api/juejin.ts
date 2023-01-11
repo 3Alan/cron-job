@@ -55,6 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // 签到操作
     await page.click('button[class="signin btn"]');
   }
+  await page.close();
   await browser.close();
   res.status(200).json({ success: true, isComplete });
 }
