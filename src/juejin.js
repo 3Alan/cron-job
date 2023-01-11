@@ -1,5 +1,4 @@
-import chromium from 'chrome-aws-lambda';
-import puppeteer from 'puppeteer-core';
+import puppeteer from 'puppeteer';
 import sendEmail from './utils/sendEmail.js';
 
 function randomRange(min, max) {
@@ -17,21 +16,10 @@ function sleep(ms, isRandom = false) {
 
 export default async function handler() {
   try {
-    const LOCAL_CHROME_EXECUTABLE =
-      process.platform === 'win32'
-        ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
-        : process.platform === 'linux'
-        ? '/usr/bin/google-chrome'
-        : '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-
-    const executablePath = (await chromium.executablePath) || LOCAL_CHROME_EXECUTABLE;
-
     const browser = await puppeteer.launch({
-      executablePath,
       headless: false,
       slowMo: 250, // slow down by 250ms
-      defaultViewport: { width: 1440, height: 1000 },
-      args: chromium.args
+      defaultViewport: { width: 1440, height: 1000 }
     });
     const page = await browser.newPage();
     await page.setDefaultNavigationTimeout(0);
