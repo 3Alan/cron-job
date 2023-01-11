@@ -35,6 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         : '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
     const executablePath = (await chromium.executablePath) || LOCAL_CHROME_EXECUTABLE;
+    console.log(executablePath, 'executablePath');
 
     const browser = await puppeteer.launch({
       executablePath,
@@ -43,8 +44,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       defaultViewport: { width: 1440, height: 1000 },
       args: chromium.args
     });
+    console.log('launch');
     const page = await browser.newPage();
     await page.setDefaultNavigationTimeout(0);
+    console.log('setDefaultNavigationTimeout');
+    
     // page.on('console', msg => console.log('PAGE LOG:', JSON.stringify(msg)));
 
     const cookieArgs = JSON.parse(process.env.JUEJIN_COOKIE_JSON || '[]').map((item: any) => ({
@@ -58,6 +62,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       sameSite: item.sameSite
     }));
     await page.setCookie(...cookieArgs);
+
+    console.log('setCookie');
 
     await page.goto('https://juejin.cn/user/center/signin?from=main_page', {
       waitUntil: 'domcontentloaded'
@@ -91,8 +97,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await page.close();
     await browser.close();
-
-    res.status(200).json({ success: true, message: 'executing...' });
   } catch (err: any) {
     await sendEmail({
       from: process.env.EMAIL_FROM,
@@ -100,7 +104,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       subject: '定时任务通知 ✅',
       html: err.message
     });
-
-    res.status(500).json({ success: true, message: err.message });
   }
 }
