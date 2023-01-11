@@ -28,7 +28,7 @@ export default async function juejin() {
     await page.setCookie(...cookieArgs);
 
     await page.goto('https://juejin.cn/user/center/signin?from=main_page', {
-      waitUntil: 'domcontentloaded'
+      waitUntil: 'networkidle0'
     });
     // 页面有动画
     await sleep(1000);
@@ -42,7 +42,7 @@ export default async function juejin() {
 
     // 沾喜气
     await page.goto('https://juejin.cn/user/center/lottery?from=lucky_lottery_menu_bar', {
-      waitUntil: 'domcontentloaded'
+      waitUntil: 'networkidle0'
     });
     await sleep(100, true);
     // TODO: 免费抽奖
@@ -54,7 +54,7 @@ export default async function juejin() {
       from: process.env.EMAIL_FROM,
       to: process.env.EMAIL_TO,
       subject: '定时任务通知 ✅',
-      html: `<img src="data:image/png;base64,${checkInImgBuffer.toString(
+      html: `<p>掘金签到成功</p><img src="data:image/png;base64,${checkInImgBuffer.toString(
         'base64'
       )}" /><img src="data:image/png;base64,${lotteryImgBuffer.toString('base64')}" />`
     });
