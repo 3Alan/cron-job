@@ -17,7 +17,8 @@ function sleep(ms, isRandom = false) {
 export default async function handler() {
   try {
     const browser = await puppeteer.launch({
-      headless: false,
+      // env开启
+      // headless: false,
       slowMo: 250, // slow down by 250ms
       defaultViewport: { width: 1440, height: 1000 }
     });
