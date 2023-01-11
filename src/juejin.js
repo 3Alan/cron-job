@@ -44,10 +44,10 @@ export default async function juejin() {
     await page.goto('https://juejin.cn/user/center/lottery?from=lucky_lottery_menu_bar', {
       waitUntil: 'domcontentloaded'
     });
-    await sleep(1000, true);
+    await sleep(100, true);
     // TODO: 免费抽奖
     await page.click('svg[class="stick-btn"]');
-    await sleep(500);
+    await sleep(1000);
     const lotteryImgBuffer = await page.screenshot();
 
     await sendEmail({
