@@ -1,5 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import puppeteer from 'puppeteer';
+// vercel有50mb的限制 https://gist.github.com/kettanaito/56861aff96e6debc575d522dd03e5725
+import chromium from 'chrome-aws-lambda';
+import puppeteer from 'puppeteer-core';
 
 function sleep(ms: number) {
   return new Promise(resolve => {
@@ -8,7 +10,23 @@ function sleep(ms: number) {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const { authorization } = req.headers;
+  // if (authorization !== `Bearer ${process.env.API_SECRET_KEY}`) {
+  //   res.status(401).json({ success: false });
+  //   return;
+  // }
+
+const LOCAL_CHROME_EXECUTABLE =
+  process.platform === 'win32'
+    ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
+    : process.platform === 'linux'
+    ? '/usr/bin/google-chrome'
+    : '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+
+  const executablePath = (await chromium.executablePath) || LOCAL_CHROME_EXECUTABLE;
+
   const browser = await puppeteer.launch({
+    executablePath,
     headless: false,
     devtools: true,
     slowMo: 250, // slow down by 250ms
@@ -17,7 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   });
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(0);
-  page.on('console', msg => console.log('PAGE LOG:', JSON.stringify(msg)));
+  // page.on('console', msg => console.log('PAGE LOG:', JSON.stringify(msg)));
 
   const cookieArgs = JSON.parse(process.env.JUEJIN_COOKIE_JSON || '[]').map((item: any) => ({
     name: item.name,
@@ -37,7 +55,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   await page.screenshot();
   const isComplete = (await (await page.$$('button[class="signin btn"]')).length) === 0;
-
 
   // 沾喜气
   await page.goto('https://juejin.cn/user/center/lottery?from=lucky_lottery_menu_bar', {
