@@ -1,14 +1,11 @@
 import nodemailer from 'nodemailer';
-import { MailOptions } from 'nodemailer/lib/json-transport';
-import { QQSmtp } from '../constants/smtp';
 
-export default async function sendEmail({
-  from,
-  to,
-  subject,
-  text,
-  html
-}: MailOptions) {
+export const QQSmtp = {
+  host: 'smtp.qq.com',
+  port: 465
+};
+
+export default async function sendEmail({ from, to, subject, text, html }) {
   const transporter = nodemailer.createTransport({
     host: QQSmtp.host,
     port: QQSmtp.port,
