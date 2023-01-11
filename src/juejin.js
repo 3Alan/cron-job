@@ -20,7 +20,7 @@ export default async function handler() {
       // TODO: 根据环境变量dev开启
       // headless: false,
       slowMo: 250, // slow down by 250ms
-      defaultViewport: { width: 1280, height: 1200 }
+      defaultViewport: { width: 1440, height: 1200 }
     });
     const page = await browser.newPage();
     await page.setDefaultNavigationTimeout(0);
@@ -78,5 +78,7 @@ export default async function handler() {
       subject: '定时任务通知 ✅',
       html: err.message
     });
+    await page.close();
+    await browser.close();
   }
 }
