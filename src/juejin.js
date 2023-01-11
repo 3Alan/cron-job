@@ -1,32 +1,20 @@
 import puppeteer from 'puppeteer';
+import isDev from './utils/isDev.js';
 import sendEmail from './utils/sendEmail.js';
+import sleep from './utils/sleep.js';
 
-function randomRange(min, max) {
-  return Math.floor(Math.random() * (max - min)) + min;
-}
-
-function sleep(ms, isRandom = false) {
-  // 100ms上下浮动，防止被检测
-  const finalTime = isRandom ? ms + randomRange(-100, 100) : ms;
-
-  return new Promise(resolve => {
-    setTimeout(resolve, finalTime);
+export default async function juejin() {
+  const browser = await puppeteer.launch({
+    headless: !isDev(),
+    slowMo: 250, // slow down by 250ms
+    defaultViewport: { width: 1440, height: 1200 }
   });
-}
+  const page = await browser.newPage();
+  await page.setDefaultNavigationTimeout(0);
 
-export default async function handler() {
+  // page.on('console', msg => console.log('PAGE LOG:', JSON.stringify(msg)));
+
   try {
-    const browser = await puppeteer.launch({
-      // TODO: 根据环境变量dev开启
-      // headless: false,
-      slowMo: 250, // slow down by 250ms
-      defaultViewport: { width: 1440, height: 1200 }
-    });
-    const page = await browser.newPage();
-    await page.setDefaultNavigationTimeout(0);
-
-    // page.on('console', msg => console.log('PAGE LOG:', JSON.stringify(msg)));
-
     const cookieArgs = JSON.parse(process.env.JUEJIN_COOKIE_JSON || '[]').map(item => ({
       name: item.name,
       value: item.value,
@@ -57,7 +45,9 @@ export default async function handler() {
       waitUntil: 'domcontentloaded'
     });
     await sleep(1000, true);
+    // TODO: 免费抽奖
     await page.click('svg[class="stick-btn"]');
+    await sleep(500);
     const lotteryImgBuffer = await page.screenshot();
 
     await sendEmail({
@@ -75,7 +65,7 @@ export default async function handler() {
     await sendEmail({
       from: process.env.EMAIL_FROM,
       to: process.env.EMAIL_TO,
-      subject: '定时任务通知 ✅',
+      subject: '定时任务通知 ❌',
       html: err.message
     });
     await page.close();

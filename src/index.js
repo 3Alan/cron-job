@@ -1,7 +1,8 @@
 import juejin from './juejin.js';
+import isDev from './utils/isDev.js';
 import * as dotenv from 'dotenv';
 
-if (process.env.NODE_ENV === 'development') {
+if (isDev()) {
   dotenv.config();
 }
 
