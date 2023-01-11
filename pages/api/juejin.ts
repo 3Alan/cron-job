@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 // vercel有50mb的限制 https://gist.github.com/kettanaito/56861aff96e6debc575d522dd03e5725
 // https://github.com/vercel/virtual-event-starter-kit/blob/main/lib/screenshot.ts
+// vercel 有10s限制
 import chromium from 'chrome-aws-lambda';
 import puppeteer from 'puppeteer-core';
 import sendEmail from '../../utils/sendEmail';
@@ -40,7 +41,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const browser = await puppeteer.launch({
       executablePath,
       // headless: false,
-      slowMo: 250, // slow down by 250ms
       defaultViewport: { width: 1440, height: 1000 },
       args: chromium.args
     });
