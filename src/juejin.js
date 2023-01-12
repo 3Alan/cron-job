@@ -37,7 +37,7 @@ async function checkIn(page) {
 async function getLucky(page) {
   // 沾喜气
   await page.goto('https://juejin.cn/user/center/lottery?from=lucky_lottery_menu_bar', {
-    waitUntil: 'domcontentloaded'
+    waitUntil: 'networkidle0'
   });
   await sleep(100, true);
 
@@ -70,7 +70,7 @@ export default async function juejin() {
     await login(page);
 
     await page.goto('https://juejin.cn/user/center/signin?from=main_page', {
-      waitUntil: 'domcontentloaded'
+      waitUntil: 'networkidle0'
     });
     // 页面有动画
     await sleep(1000);
