@@ -5,7 +5,13 @@ export const QQSmtp = {
   port: 465
 };
 
-export default async function sendEmail({ from, to, subject, text, html }) {
+export default async function sendEmail({
+  from = process.env.EMAIL_FROM,
+  to = process.env.EMAIL_TO,
+  subject,
+  text,
+  html
+}) {
   const transporter = nodemailer.createTransport({
     host: QQSmtp.host,
     port: QQSmtp.port,
