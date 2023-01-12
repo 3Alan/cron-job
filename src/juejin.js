@@ -40,8 +40,13 @@ async function getLucky(page) {
     waitUntil: 'domcontentloaded'
   });
   await sleep(100, true);
-  // 抽奖
-  await page.click('div.text-free');
+
+  const hasFreeCount = (await (await page.$$('div.text-free')).length) !== 0;
+  if (hasFreeCount) {
+    // 抽奖
+    await page.click('div.text-free');
+  }
+
   // 沾喜气
   await page.click('svg.stick-btn');
   await sleep(1000);
