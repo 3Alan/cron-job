@@ -27,7 +27,8 @@ async function checkIn(page) {
   if (!isComplete) {
     // 签到操作
     await page.click('button.signin');
-    await sleep(1000);
+    // 转盘需要时间
+    await sleep(1500);
   }
   const checkInImgBuffer = await page.screenshot();
 
@@ -41,17 +42,17 @@ async function getLucky(page) {
   });
   await sleep(100, true);
 
+  // 沾喜气
+  await page.click('svg.stick-btn');
+  await sleep(1200);
+
   const hasFreeCount = (await (await page.$$('div.text-free')).length) !== 0;
   if (hasFreeCount) {
     // 抽奖
     await page.click('div.text-free');
   }
 
-  // 沾喜气
-  await page.click('svg.stick-btn');
-  await sleep(1000);
   const lotteryImgBuffer = await page.screenshot();
-
   return lotteryImgBuffer;
 }
 
