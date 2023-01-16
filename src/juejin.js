@@ -27,7 +27,6 @@ async function checkIn(page) {
   if (!isComplete) {
     // 签到操作
     await page.click('button.signin');
-    // 转盘需要时间
     await sleep(1500);
   }
   const checkInImgBuffer = await page.screenshot();
@@ -36,7 +35,6 @@ async function checkIn(page) {
 }
 
 async function getLucky(page) {
-  // 沾喜气
   await page.goto('https://juejin.cn/user/center/lottery?from=lucky_lottery_menu_bar', {
     waitUntil: 'networkidle0'
   });
@@ -50,6 +48,8 @@ async function getLucky(page) {
   if (hasFreeCount) {
     // 抽奖
     await page.click('div.text-free');
+    // 转盘需要时间
+    await sleep(2000);
   }
 
   const lotteryImgBuffer = await page.screenshot();
