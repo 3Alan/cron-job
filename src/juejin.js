@@ -110,7 +110,7 @@ export default async function juejin() {
   } catch (err) {
     await sendEmail({
       subject: '定时任务通知 ❌',
-      html: err.message
+      html: JSON.stringify(err)
     });
     await page.close();
     await browser.close();
