@@ -1,4 +1,5 @@
 import puppeteer from 'puppeteer';
+import closeModal from './utils/closeModal.js';
 import getElementText from './utils/getElementText.js';
 import isDev from './utils/isDev.js';
 import sendEmail from './utils/sendEmail.js';
@@ -49,7 +50,7 @@ async function getLucky(page) {
     await page.click('div.text-free');
     lotteryResult = await getElementText(page, 'div.lottery_modal .title');
     // 关闭弹窗
-    await page.click('div.lottery_modal button.submit');
+    await closeModal(page, 'div.lottery_modal button.submit');
   } else {
     lotteryResult = '今日已免费抽奖';
   }
@@ -58,7 +59,7 @@ async function getLucky(page) {
   await page.click('svg.stick-btn');
   luckyResult = await getElementText(page, 'div.stick-lucky-modal .desc p');
   // 关闭弹窗
-  await page.click('div.stick-lucky-modal button.btn-submit');
+  await closeModal(page, 'div.stick-lucky-modal button.btn-submit');
   return { lotteryResult, luckyResult };
 }
 
@@ -110,7 +111,7 @@ export default async function juejin() {
   } catch (err) {
     await sendEmail({
       subject: '定时任务通知 ❌',
-      html: JSON.stringify(err)
+      html: JSON.stringify(err.stack)
     });
     await page.close();
     await browser.close();
