@@ -97,8 +97,6 @@ export default async function juejin() {
     const checkInImgBuffer = await checkIn(page);
     const { lotteryResult, luckyResult } = await getLucky(page);
 
-    console.log(lotteryResult, luckyResult);
-
     await sendEmail({
       subject: '定时任务通知 ✅',
       html: `<p>🎁免费抽奖结果：${lotteryResult}</p><p>🎉沾喜气：${luckyResult}</p><img src="data:image/png;base64,${checkInImgBuffer.toString(
