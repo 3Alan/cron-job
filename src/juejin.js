@@ -1,4 +1,5 @@
 import puppeteer from 'puppeteer';
+import getElementText from './utils/getElementText.js';
 import isDev from './utils/isDev.js';
 import sendEmail from './utils/sendEmail.js';
 import sleep from './utils/sleep.js';
@@ -35,25 +36,30 @@ async function checkIn(page) {
 }
 
 async function getLucky(page) {
+  let lotteryResult;
+  let luckyResult;
   await page.goto('https://juejin.cn/user/center/lottery?from=lucky_lottery_menu_bar', {
     waitUntil: 'networkidle0'
   });
   await sleep(100, true);
 
-  // 沾喜气
-  await page.click('svg.stick-btn');
-  await sleep(1200);
-
   const hasFreeCount = (await (await page.$$('div.text-free')).length) !== 0;
   if (hasFreeCount) {
     // 抽奖
     await page.click('div.text-free');
-    // 转盘需要时间
-    await sleep(2000);
+    lotteryResult = await getElementText(page, 'div.lottery_modal .title');
+    // 关闭弹窗
+    await page.click('div.lottery_modal button.submit');
+  } else {
+    lotteryResult = '今日已免费抽奖';
   }
 
-  const lotteryImgBuffer = await page.screenshot();
-  return lotteryImgBuffer;
+  // 沾喜气
+  await page.click('svg.stick-btn');
+  luckyResult = await getElementText(page, 'div.stick-lucky-modal .desc p');
+  // 关闭弹窗
+  await page.click('div.stick-lucky-modal button.btn-submit');
+  return { lotteryResult, luckyResult };
 }
 
 export default async function juejin() {
@@ -88,13 +94,15 @@ export default async function juejin() {
     }
 
     const checkInImgBuffer = await checkIn(page);
-    const lotteryImgBuffer = await getLucky(page);
+    const { lotteryResult, luckyResult } = await getLucky(page);
+
+    console.log(lotteryResult, luckyResult);
 
     await sendEmail({
       subject: '定时任务通知 ✅',
-      html: `<p>掘金签到成功</p><img src="data:image/png;base64,${checkInImgBuffer.toString(
+      html: `<p>🎁免费抽奖结果：${lotteryResult}</p><p>🎉沾喜气：${luckyResult}</p><img src="data:image/png;base64,${checkInImgBuffer.toString(
         'base64'
-      )}" /><img src="data:image/png;base64,${lotteryImgBuffer.toString('base64')}" />`
+      )}" />`
     });
 
     await page.close();
