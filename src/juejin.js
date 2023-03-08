@@ -48,9 +48,9 @@ async function getLucky(page) {
   if (hasFreeCount) {
     // 抽奖
     await page.click('div.text-free');
-    lotteryResult = await getElementText(page, 'div.lottery_modal .title');
+    lotteryResult = await getElementText(page, 'div.lottery-modal .title');
     // 关闭弹窗
-    await closeModal(page, 'div.lottery_modal button.submit');
+    await closeModal(page, 'div.lottery-modal button.submit');
   } else {
     lotteryResult = '今日已免费抽奖';
   }
