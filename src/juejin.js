@@ -77,11 +77,10 @@ export default async function juejin() {
   try {
     await login(page);
 
-    await page.goto('https://juejin.cn/user/center/signin?from=main_page', {
-      waitUntil: 'networkidle0'
-    });
+    await page.goto('https://juejin.cn/user/center/signin?from=main_page');
+
     // 页面有动画
-    await sleep(1000);
+    await sleep(2000);
 
     const isLogin = await checkLoginByUserCenterPage(page);
     if (!isLogin) {
