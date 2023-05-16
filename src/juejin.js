@@ -26,6 +26,8 @@ async function checkLoginByUserCenterPage(page) {
 
 async function checkIn(page) {
   const isComplete = (await (await page.$$('button.signin')).length) === 0;
+  console.log('checkIn isComplete:', isComplete);
+
   if (!isComplete) {
     // 签到操作
     await page.click('button.signin');
