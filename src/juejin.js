@@ -72,7 +72,8 @@ async function getLucky(page) {
 
 export default async function juejin() {
   const browser = await puppeteer.launch({
-    headless: !isDev(),
+    // headless: !isDev(),
+    headless: 'new',
     slowMo: isDev() ? 250 : 0, // slow down by 250ms
     defaultViewport: { width: 1440, height: 1200 }
   });
