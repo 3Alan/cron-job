@@ -6,16 +6,18 @@ import sendEmail from './utils/sendEmail.js';
 import sleep from './utils/sleep.js';
 
 async function login(page) {
-  const cookieArgs = JSON.parse(process.env.JUEJIN_COOKIE_JSON || '[]').map(item => ({
-    name: item.name,
-    value: item.value,
-    domain: item.domain,
-    path: item.path,
-    expires: item.expirationDate,
-    httpOnly: item.httpOnly,
-    secure: item.secure,
-    sameSite: item.sameSite
-  }));
+  const cookieArgs = JSON.parse(process.env.JUEJIN_COOKIE_JSON || '[]').map(
+    item => ({
+      name: item.name,
+      value: item.value,
+      domain: item.domain,
+      path: item.path,
+      expires: item.expirationDate,
+      httpOnly: item.httpOnly,
+      secure: item.secure,
+      sameSite: item.sameSite
+    })
+  );
   await page.setCookie(...cookieArgs);
 }
 
@@ -40,10 +42,13 @@ async function checkIn(page) {
 
 async function getLucky(page) {
   let lotteryResult;
-  let luckyResult;
-  await page.goto('https://juejin.cn/user/center/lottery?from=lucky_lottery_menu_bar', {
-    waitUntil: 'networkidle0'
-  });
+  // let luckyResult;
+  await page.goto(
+    'https://juejin.cn/user/center/lottery?from=lucky_lottery_menu_bar',
+    {
+      waitUntil: 'networkidle0'
+    }
+  );
   await sleep(100, true);
 
   const hasFreeCount = (await (await page.$$('div.text-free')).length) !== 0;
@@ -58,11 +63,11 @@ async function getLucky(page) {
   }
 
   // 沾喜气
-  await page.click('svg.stick-btn');
-  luckyResult = await getElementText(page, 'div.stick-lucky-modal .desc p');
-  // 关闭弹窗
-  await closeModal(page, 'div.stick-lucky-modal button.btn-submit');
-  return { lotteryResult, luckyResult };
+  // await page.click('svg.stick-btn');
+  // luckyResult = await getElementText(page, 'div.stick-lucky-modal .desc p');
+  // // 关闭弹窗
+  // await closeModal(page, 'div.stick-lucky-modal button.btn-submit');
+  return { lotteryResult };
 }
 
 export default async function juejin() {
@@ -98,11 +103,11 @@ export default async function juejin() {
     }
 
     const checkInImgBuffer = await checkIn(page);
-    const { lotteryResult, luckyResult } = await getLucky(page);
+    const { lotteryResult } = await getLucky(page);
 
     await sendEmail({
       subject: '定时任务通知 ✅',
-      html: `<p>🎁免费抽奖结果：${lotteryResult}</p><p>🎉沾喜气：${luckyResult}</p><img src="data:image/png;base64,${checkInImgBuffer.toString(
+      html: `<p>🎁免费抽奖结果：${lotteryResult}</p><img src="data:image/png;base64,${checkInImgBuffer.toString(
         'base64'
       )}" />`
     });
