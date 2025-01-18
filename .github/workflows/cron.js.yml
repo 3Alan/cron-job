@@ -11,7 +11,8 @@ on:
 
 jobs:
   cron:
-    runs-on: ubuntu-latest
+    # https://github.com/puppeteer/puppeteer/issues/12818
+    runs-on: ubuntu-22.04
     env:
       JUEJIN_COOKIE_JSON: ${{ secrets.JUEJIN_COOKIE_JSON }}
       EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
